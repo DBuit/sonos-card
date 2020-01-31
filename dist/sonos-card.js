@@ -2444,20 +2444,18 @@ class SonosCard extends LitElement {
                 return html `
               <div class="group" data-entity="${entity}">
                 <div class="wrap ${this.active == entity ? 'active' : ''}">
-                  <ul class="speakers">
-                      ${stateObj.attributes.sonos_group.map(speaker => {
-                    return html `<li>${speakerNames[speaker]}</li>`;
+                  <div class="inner-wrap">
+                    <span class="icon" style="">
+                      <div class="player ${stateObj.state == 'playing' ? 'active' : ''}">
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                      </div>
+                    </span>
+                    ${stateObj.attributes.sonos_group.map(speaker => {
+                    return html `<span class="name">${speakerNames[speaker]}</span>`;
                 })}
-                  </ul>
-                  <div class="play">
-                    <div class="content">
-                      <span class="currentTrack">${stateObj.attributes.media_artist} - ${stateObj.attributes.media_title}</span>
-                    </div>
-                    <div class="player ${stateObj.state == 'playing' ? 'active' : ''}">
-                      <div class="bar"></div>
-                      <div class="bar"></div>
-                      <div class="bar"></div>
-                    </div>
+                    <span class="state">${stateObj.attributes.media_artist} - ${stateObj.attributes.media_title}</span>
                   </div>
                 </div>
               </div>
@@ -2656,13 +2654,10 @@ class SonosCard extends LitElement {
       }
 
       .players {
-        max-width: 20rem;
-        width:100%;
-        max-width: 20rem;
+        width:370px;
       }
       .player__container {
         margin:0;
-        max-width: 20rem;
         background: #fff;
         border-radius: 12px;
         box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 3px 0px;
@@ -2918,19 +2913,26 @@ class SonosCard extends LitElement {
       .groups {
         margin: 0 20px 0 0;
         padding: 0;
-        max-width: 15rem;
-        width: 100%;
+        width: auto;
       }
       .groups > .group {
         padding:0;
         margin:0;
       }
       .group .wrap {
-        border-radius:12px;
-        margin:15px 0;
-        padding:10px;
+        cursor: pointer;
+        display: inline-block;
+        width: 100px;
+        height: 100px;
         background-color: rgba(255, 255, 255, 0.8);
         box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 3px 0px;
+        position: relative;
+        font-weight: 300;
+        touch-action: auto !important;
+        padding: 10px;
+        border-radius: 12px;
+        margin: 3px;
+        overflow: hidden;
       }
       .group .wrap.active {
         background-color: rgba(255, 255, 255, 1);
@@ -2938,77 +2940,95 @@ class SonosCard extends LitElement {
       .group:first-child .wrap {
         margin-top:0;
       }
-      .group ul.speakers {
-        list-style:none;
-        margin:0;
-        padding:0;
+
+      .group .wrap .inner-wrap {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        pointer-events: none;
       }
-      .group ul.speakers li {
-        display:block;
+
+      .group .wrap .inner-wrap span.icon {
+        display: block;
+        height: 40px;
+        width: 40px;
+        color: #d30320;
+        font-size: 30px;
+        transform-origin: 50% 50%;
+        line-height: 40px;
+        text-align: center;
+        pointer-events: none;
+      }
+      .group .wrap .inner-wrap span.icon ha-icon {
+        width: 30px;
+        height: 30px;
+        pointer-events: none;
+      }
+      .group .wrap .inner-wrap span.name {
         font-size: 14px;
         font-weight: 500;
-        margin:5px 0 0 0 ;
         color: rgba(0, 0, 0, 0.4);
+        width: 100%;
+        margin-top: auto;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow-wrap: break-word;
+        white-space: normal;
+        pointer-events: none;
+        overflow: hidden;
       }
-      .group ul.speakers li:first-child {
-        margin:0;
-      }
-      .group .play {
-        display:flex;
-        flex-direction:row;
-        margin-top:10px;
-      }
-      .group .play .content {
-        flex:1;
+      .group .wrap .inner-wrap span.state {
+        position: relative;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.4);
+        text-transform: capitalize;
+        float: left;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        padding-right: 15px;
-      }
-      .group .play .content .source {
-        display:block;
-        color: rgba(0, 0, 0, 0.4);
-        font-size:14px;
-      }
-      .group .play .content .currentTrack {
-        display:block;
-        color: rgba(0, 0, 0, 0.4);
-        font-size:14px;
+        pointer-events: none;
         overflow: hidden;
         text-overflow: ellipsis;
       }
-      .group .play .player {
-        width:14px;
-        position:relative;
+
+      .group .player {
+        position: relative;
+        width: 30px;
+        height: 30px;
       }
-      .group .play .player .bar {
+
+      .group .player .bar {
         background: #666;
         bottom: 1px;
         height: 3px;
         position: absolute;
         width: 4px;
         animation: sound 0ms -800ms linear infinite alternate;
-        display:none;
-      }
-      .group .play .player.active .bar{
         display:block;
       }
-      .group .play .player .bar:nth-child(1) {
+
+      .group .player .bar:nth-child(1) {
         left: 1px;
+      }
+      .group .player .bar:nth-child(2) {
+        left: 6px;
+      }
+      .group .player .bar:nth-child(3) {
+        left: 11px;
+      }
+
+      .group .player.active .bar:nth-child(1) {
         animation-duration: 474ms;
       }
-      .group .play .player .bar:nth-child(2) {
-        left: 6px;
+      .group .player.active .bar:nth-child(2) {
         animation-duration: 433ms;
       }
-      .group .play .player .bar:nth-child(3) {
-        left: 11px;
+      .group .player.active .bar:nth-child(3) {
         animation-duration: 407ms;
       }
 
-      .group .wrap.active ul.speakers li,
-      .group .wrap.active .play .content .source,
-      .group .wrap.active .play .content .currentTrack {
+
+      .group .wrap .inner-wrap span.name,
+      .group .wrap .inner-wrap span.state {
         color: rgb(0, 0, 0);
       }
 
