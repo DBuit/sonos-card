@@ -147,12 +147,19 @@ class SonosCard extends LitElement {
         </div>
       </div>
       <div class="center">
-        <div class="title">Favorites</div>
         <ul class="favorites">
           ${favorites.map(favorite => {
             return html`
               <li>
-                <div class="favorite" data-favorite="${favorite}"><span>${favorite}</span> <ha-icon .icon=${"mdi:play"}></ha-icon></div>
+                <div class="favorite" data-favorite="${favorite}">
+                  <div class="favorite-inner">
+                    <span class="icon" style="">
+                      <ha-icon .icon=${"mdi:play"}></ha-icon>
+                    </span>
+                    <span class="name">${favorite}</span>
+                  </div>
+                </div>
+              
               </li>
             `;
           })}
@@ -685,27 +692,55 @@ class SonosCard extends LitElement {
         display:inline-block;
       }
       ul.favorites > li .favorite {
-        border-radius:4px;
-        margin:15px 0;
-        padding:10px;
-        background-color:#FFF;
+        cursor: pointer;
+        display: inline-block;
+        width: 100px;
+        height: 100px;
+        background-color: rgba(255, 255, 255, 0.8);
         box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 3px 0px;
-        display:flex;
-        flex-direction:row;
+        position: relative;
+        font-weight: 300;
+        touch-action: auto !important;
+        padding: 10px;
+        border-radius: 12px;
+        margin: 3px;
+        overflow: hidden;
       }
-      ul.favorites > li .favorite span {
-        flex:1;
-        align-self:center;
-        font-size:14px;
-        color:#000;
+      ul.favorites > li .favorite .favorite-inner {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        pointer-events: none;
       }
-      ul.favorites > li .favorite ha-icon {
-        align-self:center;
-        font-size:10px;
-        color: #888;
-      }
-      ul.favorites > li .favorite:hover ha-icon {
+      ul.favorites > li .favorite span.icon {
+        display: block;
+        height: 40px;
+        width: 40px;
         color: #d30320;
+        font-size: 30px;
+        transform-origin: 50% 50%;
+        line-height: 40px;
+        text-align: center;
+        pointer-events: none;
+      }
+      ul.favorites > li .favorite span.icon ha-icon {
+        width: 30px;
+        height: 30px;
+        pointer-events: none;
+      }
+      ul.favorites > li .favorite span.name {
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.4);
+        width: 100%;
+        margin-top: auto;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow-wrap: break-word;
+        white-space: normal;
+        pointer-events: none;
+        overflow: hidden;
       }
 
 
