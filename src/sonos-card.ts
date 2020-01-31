@@ -50,15 +50,7 @@ class SonosCard extends LitElement {
       }
     }
 
-    console.log(speakerNames);
-    console.log(favorites);
-    console.log(this.active);
-
     return html`
-      <div class="header">
-        <div class="name">${this.config.name}</div>
-      </div>
-
       <div class="center">
         <div class="groups">
         ${this.config.entities.map(entity => {
@@ -125,7 +117,7 @@ class SonosCard extends LitElement {
         <div class="sidebar">
           <div class="title">Rooms</div>
           <ul class="members">
-            ${this.hass.states[this.active].attributes.sonos_group.map(entity => {
+            ${this.active != '' ? html`${this.hass.states[this.active].attributes.sonos_group.map(entity => {
               if(entity != this.active) {
               return html`
                 <li>
@@ -139,12 +131,6 @@ class SonosCard extends LitElement {
               }
             })}
             ${this.config.entities.map(entity => {
-              console.group('test');
-              console.log(entity);
-              console.log(this.hass.states[this.active].attributes.sonos_group);
-              console.log(entity != this.active)
-              console.log(!this.hass.states[this.active].attributes.sonos_group.includes(entity));
-              console.groupEnd();
               if(entity != this.active && !this.hass.states[this.active].attributes.sonos_group.includes(entity)) {
                 return html`
                   <li>
@@ -156,19 +142,21 @@ class SonosCard extends LitElement {
               } else {
                 return html``;
               }
-            })}
-          </ul>
-          <div class="title">Favorites</div>
-          <ul class="favorites">
-            ${favorites.map(favorite => {
-              return html`
-                <li>
-                  <div class="favorite" data-favorite="${favorite}"><span>${favorite}</span> <ha-icon .icon=${"mdi:play"}></ha-icon></div>
-                </li>
-              `;
-            })}
+            })}`: html ``}
           </ul>
         </div>
+      </div>
+      <div class="center">
+        <div class="title">Favorites</div>
+        <ul class="favorites">
+          ${favorites.map(favorite => {
+            return html`
+              <li>
+                <div class="favorite" data-favorite="${favorite}"><span>${favorite}</span> <ha-icon .icon=${"mdi:play"}></ha-icon></div>
+              </li>
+            `;
+          })}
+        </ul>
       </div>
     `;
   }
@@ -178,7 +166,6 @@ class SonosCard extends LitElement {
     this.shadowRoot.querySelectorAll(".group").forEach(group => {
       group.addEventListener('click', () => {
           this.active = group.dataset.entity;
-          console.log(this.active);
       })
   });
   }
@@ -244,9 +231,6 @@ class SonosCard extends LitElement {
   setConfig(config) {
     if (!config.entities) {
       throw new Error("You need to define entities");
-    }
-    if (!config.name) {
-      throw new Error("You need to define a name for the cards header");
     }
     this.config = config;
   }
@@ -666,18 +650,18 @@ class SonosCard extends LitElement {
         margin:0;
       }
       ul.members > li .member {
-        border-radius:4px;
+        border-radius:12px;
         margin:15px 0;
-        padding:15px;
+        padding:10px;
         background-color:#FFF;
-        box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.19), 0 6px 6px -10px rgba(0, 0, 0, 0.23);
+        box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 3px 0px;
         display:flex;
         flex-direction:row;
       }
       ul.members > li .member span {
         flex:1;
         align-self:center;
-        font-size:12px;
+        font-size:14px;
         color:#000;
       }
       ul.members > li .member ha-icon {
@@ -690,27 +674,29 @@ class SonosCard extends LitElement {
       }
 
       ul.favorites {
+        max-width:50rem;
         list-style:none;
         padding:0;
-        margin:0 0 30px 0;
+        margin:0 -3px 30px -3px;
       }
       ul.favorites > li {
         padding:0;
-        margin:0;
+        margin:3px;
+        display:inline-block;
       }
       ul.favorites > li .favorite {
         border-radius:4px;
         margin:15px 0;
-        padding:15px;
+        padding:10px;
         background-color:#FFF;
-        box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.19), 0 6px 6px -10px rgba(0, 0, 0, 0.23);
+        box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 3px 0px;
         display:flex;
         flex-direction:row;
       }
       ul.favorites > li .favorite span {
         flex:1;
         align-self:center;
-        font-size:12px;
+        font-size:14px;
         color:#000;
       }
       ul.favorites > li .favorite ha-icon {
