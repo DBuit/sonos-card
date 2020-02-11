@@ -113,14 +113,16 @@ class SonosCard extends LitElement {
         </div>
 
         <div class="sidebar">
-          <div class="title">Rooms</div>
           <ul class="members">
             ${this.active != '' ? html`${this.hass.states[this.active].attributes.sonos_group.map(entity => {
               if(entity != this.active) {
               return html`
                 <li>
-                  <div class="member unjoin-member" data-member="${entity}">
-                    <span>${speakerNames[entity]} </span><ha-icon .icon=${"mdi:minus"}></ha-icon></i>
+                  <div class="member unjoin-member" data-member="${entity}" @click="${e => this._unjoin(e)}">
+                    <div class="member-inner">
+                      <ha-icon .icon=${"mdi:minus"}></ha-icon>
+                      <span>${speakerNames[entity]} </span>
+                    </div>
                   </div>
                 </li>
               `;
@@ -132,8 +134,11 @@ class SonosCard extends LitElement {
               if(entity != this.active && !this.hass.states[this.active].attributes.sonos_group.includes(entity)) {
                 return html`
                   <li>
-                    <div class="member join-member" data-member="${entity}">
-                      <span>${speakerNames[entity]} </span><ha-icon .icon=${"mdi:plus"}></ha-icon></i>
+                    <div class="member join-member" data-member="${entity}" @click="${e => this._join(e)}">
+                      <div class="member-inner">
+                        <ha-icon .icon=${"mdi:plus"}></ha-icon>
+                        <span>${speakerNames[entity]} </span>
+                      </div>
                     </div>
                   </li>
                 `;
@@ -149,7 +154,7 @@ class SonosCard extends LitElement {
           ${favorites.map(favorite => {
             return html`
               <li>
-                <div class="favorite" data-favorite="${favorite}">
+                <div class="favorite" data-favorite="${favorite}" @click="${e => this._sourceSet(e)}">
                   <div class="favorite-inner">
                     <span class="icon" style="">
                       <ha-icon .icon=${"mdi:play"}></ha-icon>
@@ -232,6 +237,39 @@ class SonosCard extends LitElement {
       }
     }
   }
+
+  _sourceSet(e) {
+    if(e.target.dataset && e.target.dataset.favorite) {
+      console.log(this.active);
+      console.log(e.target.dataset.favorite);
+      this.hass.callService("media_player", "select_source", {
+        source: e.target.dataset.favorite,
+        entity_id: this.active
+      });
+    }
+    
+  }
+  _join(e) {
+    if(e.target.dataset && e.target.dataset.member) {
+      console.log(this.active);
+      console.log(e.target.dataset.member);
+      this.hass.callService("sonos", "join", {
+        master: this.active,
+        entity_id: e.target.dataset.member
+      });
+    }
+    
+  }
+  _unjoin(e) {
+    if(e.target.dataset && e.target.dataset.member) {
+      console.log(this.active);
+      console.log(e.target.dataset.member);
+      this.hass.callService("sonos", "unjoin", {
+        master: this.active,
+        entity_id: e.target.dataset.member
+      });
+    }
+  }
   
   setConfig(config) {
     if (!config.entities) {
@@ -241,7 +279,7 @@ class SonosCard extends LitElement {
   }
 
   getCardSize() {
-    return this.config.entities.length + 1;
+    return 1;
   }
   
   static get styles() {
@@ -279,7 +317,8 @@ class SonosCard extends LitElement {
       }
 
       .players {
-        width:370px;
+        margin: 3px 5px;
+        width: 382px;
       }
       .player__container {
         margin:0;
@@ -536,7 +575,7 @@ class SonosCard extends LitElement {
       }
 
       .groups {
-        margin: 0 20px 0 0;
+        margin: 0;
         padding: 0;
         width: auto;
       }
@@ -561,9 +600,6 @@ class SonosCard extends LitElement {
       }
       .group .wrap.active {
         background-color: rgba(255, 255, 255, 1);
-      }
-      .group:first-child .wrap {
-        margin-top:0;
       }
 
       .group .wrap .inner-wrap {
@@ -594,7 +630,6 @@ class SonosCard extends LitElement {
         font-weight: 500;
         color: rgba(0, 0, 0, 0.4);
         width: 100%;
-        margin-top: auto;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
@@ -603,6 +638,10 @@ class SonosCard extends LitElement {
         pointer-events: none;
         overflow: hidden;
       }
+      .inner-wrap span:nth-child(2) {
+        margin-top: auto;
+      }
+
       .group .wrap .inner-wrap span.state {
         position: relative;
         font-size: 14px;
@@ -658,14 +697,9 @@ class SonosCard extends LitElement {
       }
 
       .sidebar {
-        margin:0 0 0 20px;
-        padding:0;
-        max-width:15rem;
-        width:100%;
-      }
-      .sidebar .title {
-        display:block;
-        color: #FFF;
+        width: auto;
+        margin: 0;
+        padding: 0;
       }
       ul.members {
         list-style:none;
@@ -677,38 +711,63 @@ class SonosCard extends LitElement {
         margin:0;
       }
       ul.members > li .member {
-        border-radius:12px;
-        margin:15px 0;
-        padding:10px;
-        background-color:#FFF;
+        cursor: pointer;
+        display: inline-block;
+        width: 100px;
+        height: 50px;
+        background-color: rgba(255, 255, 255, 0.8);
         box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 3px 0px;
-        display:flex;
-        flex-direction:row;
+        position: relative;
+        font-weight: 300;
+        touch-action: auto !important;
+        padding: 10px;
+        border-radius: 12px;
+        margin: 3px;
+        overflow: hidden;
+      }
+      ul.members > li .member .member-inner {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        pointer-events: none;
       }
       ul.members > li .member span {
-        flex:1;
-        align-self:center;
-        font-size:14px;
-        color:#000;
+        font-size: 14px;
+        font-weight: 500;
+        color: #000;
+        width: 100%;
+        margin-top: auto;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow-wrap: break-word;
+        white-space: normal;
+        pointer-events: none;
+        overflow: hidden;
       }
       ul.members > li .member ha-icon {
-        align-self:center;
-        font-size:10px;
+        display: block;
+        height: 30px;
+        width: 30px;
         color: #888;
+        font-size: 30px;
+        transform-origin: 50% 50%;
+        line-height: 40px;
+        text-align: center;
+        pointer-events: none;
       }
       ul.members > li .member:hover ha-icon {
         color: #d30320;
       }
 
       ul.favorites {
-        max-width:50rem;
-        list-style:none;
-        padding:0;
-        margin:0 -3px 30px -3px;
+        width: 644px;
+        margin: 0;
+        padding: 0;
       }
       ul.favorites > li {
         padding:0;
-        margin:3px;
+        margin:0;
         display:inline-block;
       }
       ul.favorites > li .favorite {
